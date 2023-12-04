@@ -1,0 +1,54 @@
+.container {
+    position: relative;
+    top: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 830px;
+    margin: 0 auto 0;
+    font-size: 30px;
+    color: #24432e;
+    line-height: 40px;
+}
+
+
+.title {
+    margin-top: 20px;
+}
+
+.title p {
+    margin-top: 10px;
+    padding: 0;
+}
+
+
+.first, .second, .third, .suptitle {
+    opacity: 0; 
+}
+
+
+.suptitle {
+    animation: fadeIn 1s 0.5s forwards; 
+}
+
+.first {
+    animation: fadeIn 1s 2s forwards; 
+}
+
+.second {
+    animation: fadeIn 1s 3s forwards;
+}
+
+.third {
+    animation: fadeIn 1s 4s forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}

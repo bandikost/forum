@@ -1,0 +1,33 @@
+﻿function likesBlockScripts_page(canVoteAndDidNotVoteElse, addLikeUrl, likesBlockUrl) {
+  
+    function updateVoteBlock(jqueryItem) {
+        App.req.newRequest("vote-block-update-block")
+            .setUrl(likesBlockUrl)
+            .setData({ id: $(jqueryItem).children("div").attr("id"), Type: $(jqueryItem).children("div").attr("data-type") })
+            .putResponseTo(jqueryItem)
+            .send();
+
+        if (typeof (App.articles) != "undefined")
+            App.articles.needVote = false;
+        $.fancybox.close();
+    }
+
+    function likeHandler() {
+        debugger;
+        var elem = $(this).parents(".js-ajax-block");
+        App.req.newRequest("vote")
+            .setUrl(addLikeUrl)
+            .setData({ ItemId: $(this).parents("div").attr("id"), Like: $(this).attr("data-like"), Type: $(this).parents("div").attr("data-type") })
+            .setErrorBlock("vote-block-error-container")
+            .addSuccess(function () {
+                updateVoteBlock(elem);
+            })
+            .send();
+    }
+
+    $(document).off("click",".js_vote").on("click", ".js_vote", likeHandler);
+
+    if (canVoteAndDidNotVoteElse) {
+        App.articles.needVote = true;
+    }
+}

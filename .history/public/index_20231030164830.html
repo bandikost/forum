@@ -1,0 +1,33 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="./favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/src/App.css">
+    <title>Комнед</title>
+  </head>
+  <body>
+    
+    <div id="root">
+      
+    </div>
+    <div class="mask">
+      <div class="loader"></div>
+    </div>
+
+
+      <script>
+        let mask = document.querySelector('.mask');
+       let loader = document.querySelector('.loader');        
+       window.addEventListener('load', () => {
+         document.body.style.background = 'none';
+       });
+       window.addEventListener('load', () => {
+         mask.classList.add('hide');
+         setTimeout(() => {
+           mask.remove();
+         }, 3000);
+       });
+       </script>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+.item_1 img,
+.item_2 img,
+.item_3 img,
+.item_4 img,
+.item_5 img,
+.item_6 img,
+.item_7 img,
+.item_8 img,
+.item_9 img,
+.item_10 img{
+    position: absolute;
+    width: 50px;
+    height: 50px;
+}
+
+.item_1 {
+    top: 10%;
+    position: absolute;
+    left: 15%;
+}

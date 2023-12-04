@@ -1,0 +1,70 @@
+.item_1 img,
+.item_2 img,
+.item_3 img,
+.item_4 img,
+.item_5 img,
+.item_6 img,
+.item_7 img,
+.item_8 img,
+.item_9 img,
+.item_10 img{
+    position: absolute;
+    width: 50px;
+    height: 50px;
+}
+
+.item_1 {
+    top: 10%;
+    position: absolute;
+    left: 15%;
+}
+.item_1 {
+    top: 10%;
+    position: absolute;
+    left: 15%;
+}
+.item_2 {
+    top: 20%;
+    position: absolute;
+    left: 10%;
+}
+.item_3 {
+    top: 50%;
+    position: absolute;
+    left: 35%;
+}
+.item_4 {
+    top: 15%;
+    position: absolute;
+    left: 55%;
+}
+.item_5 {
+    top: 35%;
+    position: absolute;
+    left: 70%;
+}
+.item_6 {
+    top: 80%;
+    position: absolute;
+    left: 50%;
+}
+.item_7 {
+    top: 90%;
+    position: absolute;
+    left: 15%;
+}
+.item_8 {
+    top: 10%;
+    position: absolute;
+    left: 30%;
+}
+.item_9 {
+    top: 70%;
+    position: absolute;
+    left: 30%;
+}
+.item_10 {
+    top: 10%;
+    position: absolute;
+    left: 15%;
+}

@@ -1,0 +1,414 @@
+.s {
+    height: 1400px;
+}
+
+.objects {
+    display: flex;
+    justify-content: center;
+    margin: 0 auto 0;
+    width: 1100px;
+}
+
+.objects {
+    margin-top: 30px;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-family: "Montserrat", sans-serif;
+    font-size: 22px;
+}
+
+.cards_container {
+    display: flex;
+    width: 1100px;
+    position: relative;
+    top: 30px;
+    justify-content: space-between;
+}
+
+.discount {
+    border: none;
+    position: absolute;
+    width: 70px;
+    height: 35px;
+    margin-top: -145px;
+    margin-left: -25px;
+    z-index: 10;
+}
+
+.sold {
+
+        border: none;
+        position: absolute;
+        width: 180px;
+        height: 140px;
+        margin-top: -170px;
+        margin-left: 20px;
+        z-index: 10;
+
+}
+
+
+.cards_container_second {
+    display: flex;
+    width: 1100px;
+    position: relative;
+    top: 40px;
+    margin: 0 auto 0;
+    justify-content: space-between;
+}
+
+.cards_container_second ul{
+    width: 262.5px;
+}
+
+.cards_container_second p {
+    margin-top: 0px;
+}
+
+
+.bannerText {
+    position: absolute;
+    right: 0px;
+    top: 50px;
+}
+
+
+.bannerText span {
+    font-size: 40px;
+    color: #0090ff;
+}
+
+.bannerText p {
+    font-size: 35px;
+    position: relative;
+    left: 70px;
+    top: -40px;
+    color: #0e10b3;
+}
+
+
+.containerObject span {
+    max-width: 215px;
+    width: 100%;
+    height: 100px;
+    display: block;
+}
+
+.cards_container ul{
+    width: 262.5px;
+}
+
+.ids {
+    text-decoration: none;
+}
+
+.ids p {
+    margin-top: -10px;
+    font-weight: 600;
+    color: black;
+    padding: 0 5px;
+    font-size: 18px;
+    font-family: "Montserrat", sans-serif;
+}
+
+.object_img {
+    opacity: 0.8;
+    border: 1px solid black;
+}
+
+.object_img:hover {
+    transition: all .5s ease ;
+    transform: scale(1.1);
+    
+}
+
+.opacity{
+    display: none;
+    color: white;
+    
+}
+
+.ids:hover .opacity{
+    display: block;
+    color: white;
+    position: absolute;
+    top: 40px;
+    margin: 0 auto 0;
+    display: flex;
+    justify-content: center;
+    width: 220px;
+    z-index: 50;
+  }
+
+
+
+
+.ids:hover {
+   opacity: 1;
+   transition: all .5s ease ;
+   transform: scale(1);
+}
+
+
+.description {
+  
+    padding: 0 5px;
+    line-height: 18px;
+    font-weight: 500;
+    color: black;
+    font-size: 14px;
+    font-family: "Montserrat", sans-serif;
+}
+
+
+.more{
+    text-decoration: none;
+    position: relative;
+    top: -28px;
+    left: 126px;
+    color: white;
+    border: 1px solid white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    z-index: 10;
+}
+
+
+.objects_container {
+    display: flex;
+    position: relative;
+    left: -20px;
+    margin: 0 auto 0;
+    justify-content: center;
+    align-items: center;
+    width: 1100px;
+    flex-direction: column;
+}
+
+.ids_second {
+    text-decoration: none;
+}
+
+.ids_second  p {
+    margin-top: 10px;
+    font-weight: 600;
+    color: black;
+    padding: 0 5px;
+    font-size: 18px;
+    font-family: "Montserrat", sans-serif;
+}
+
+
+.ids_second img {
+    opacity: 0.8;
+    
+}
+
+.more_second {
+    text-decoration: none;
+    position: relative;
+    top: -28px;
+    left: 126px;
+    color: white;
+    border: 1px solid white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    z-index: 10;
+}
+
+
+
+.opacity_second{
+    display: none;
+    color: white;
+}
+
+.ids_second:hover .opacity{
+    display: block;
+    color: white;
+    position: absolute;
+    top: 40px;
+    margin: 0 auto 0;
+    display: flex;
+    justify-content: center;
+    width: 220px;
+    z-index: 50;
+    font-size: 17px;
+  }
+
+  .soldimg {
+    position: absolute;
+    top: 120px;
+    width: 150px;
+    left: 120px;
+  }
+
+  .object_img{
+    width: 230px;
+  }
+
+  .Banner {
+    background: url(../../image/header/main.jpg) center no-repeat;
+    object-fit: cover;
+    width: 100%;
+    height: 330px;
+    margin-top: 100px;
+    overflow: hidden;
+  }
+
+  .banner img {
+    object-fit: cover;
+    width: 100%;
+    height: 330px;
+    overflow: hidden;
+  }
+
+
+
+  .footer_container {
+    max-width: 1920px;
+    width: 70%;
+    display: flex;
+  }
+
+  .numbers {
+    max-width: 1920px;
+    width: 70%;
+  }
+
+
+
+
+
+
+
+@media(max-width: 1100px) {
+    .cards_container ul,
+    .cards_container_second ul{
+        width: 209.5px;
+        width: 209.5px;
+    }
+    .object_img {
+        width: 220px;
+    }
+    .cards_container,
+    .cards_container_second {
+        width: 990px;
+    }
+
+    .objects_container {
+        width: 990px;
+        left: -32px;
+    }
+
+    .objects {
+        width: 990px;
+    }
+
+    .ids_second  p,
+    .ids p {
+        font-size: 16px;
+    }
+
+    .description {
+        font-size: 12px;
+    }
+
+    .ids_second:after,
+    .ids:after{
+       width: 220px; 
+    }
+
+    .soldimg {
+        width: 140px;
+        left: 120px;
+        top: 128px;
+    }
+}
+
+
+@media(max-width: 990px) {
+
+    .cards_container ul,
+    .cards_container_second ul{
+        width: 230px;
+        width: 230px;
+    }
+
+    .objects {
+        width: 768px;
+    }
+
+    .cards_container,
+    .cards_container_second {
+        width: 540px;
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+    }
+
+    .objects_container {
+        width: 768px;
+        left: -10px;
+    }
+    .ids:after,
+    .ids_second:after {
+        display: none;
+
+    }
+
+  
+
+    .Banner {
+        margin-top: 51px;
+    }
+}
+
+@media(max-width: 768px) {
+
+    .cards_container ul,
+    .cards_container_second ul{
+        width: 230px;
+        width: 230px;
+    }
+
+    .objects {
+        width: 350px;
+    }
+
+    .cards_container,
+    .cards_container_second {
+        width: 540px;
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+    }
+
+    .objects_container {
+        width: 540px;
+        left: -10px;
+    }
+    .ids:after,
+    .ids_second:after {
+        display: none;
+
+    }
+
+   
+}
+
+
+@media(max-width: 540px) {
+    .objects_container {
+        width: 280px;
+    }
+
+    .cards_container,
+    .cards_container_second {
+        width: 280px;
+    }
+
+    .objects {
+        width: 280px;
+    }
+}

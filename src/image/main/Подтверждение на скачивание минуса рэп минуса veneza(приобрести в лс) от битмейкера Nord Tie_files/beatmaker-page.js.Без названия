@@ -1,0 +1,90 @@
+﻿function beatmaker_page(switchStarredUser_Url, getHardwareUrl, beatsUrl) {
+    $(function () {
+	  
+
+        $(".js-style-mood-filter").change(function () {
+            var $beats = $(".js-beat");
+		    var styleId = $(".js-style").val();
+		    var moodId = $(".js-mood").val();
+
+		    var needCheckStyle = styleId != "null";
+		    var needCheckMood = moodId != "null";
+
+            $beats.each(function () {
+                debugger
+		    	var $beat = $(this);
+		    	if ((needCheckMood && $beat.data("mood-id") != moodId) ||
+				    (needCheckStyle && $beat.data("style-id") != styleId)) {
+		    		$beat.hide();
+			    } else {
+				    $beat.show();
+			    }
+		    });
+	    });
+
+    	$(".js-info-about-user .title").click(function () {
+            $(".js-about-user-content").slideToggle();
+        });
+
+        $("#js-catalog-beat-find-by-name").keyup(function () {
+            var filterValue = $(this).val().toLowerCase();
+
+            if (filterValue === "") {
+                //$("ul#catalog-beats li").fadeIn(400);
+                $("ul#catalog-beats li").slideDown(500);
+                return;
+            }
+
+            $("ul#catalog-beats li").each(function () {
+                var item = $(this).find(".js-beat-name");
+
+                if (item.html().toLowerCase().indexOf(filterValue) > -1) {
+                    item.closest("li").slideDown(500);
+                    //item.closest("li").fadeIn(400);
+                } else {
+                    item.closest("li").slideUp(500);
+                    //item.closest("li").fadeOut(400);
+                }
+            });
+        });
+
+        function initScrol() {
+            $(".js-content-scroll").each(function () {
+                $(this).mCustomScrollbar({
+                    verticalScroll: true,
+                    theme: $(this).hasClass("js-scroll-dark") ? "dark" : "light-thin",
+                    scrollButtons: {
+                        enable: true
+                    },
+                    advanced: {
+                        updateOnContentResize: true,
+                        updateOnBrowserResize: true
+                    }
+                });
+            });
+        }
+
+      
+        setTimeout(initScrol, 500);
+
+        $("[data-role='reviews-counts']").click(function () {
+        	$("[data-vr-tabs-id='beatmaker-page-menu'][data-vr-tabs-tab-id='5']").trigger("click");
+        });
+
+        App.req.newRequest('getHardware')
+    	.setUrl(getHardwareUrl)
+			.putResponseTo($("#js-beatmaker-hardware"))
+            .send();
+
+
+        //$.byRole("beats-container").html();
+
+        App.req.newRequest('getBeats')
+            .setUrl(beatsUrl)
+            .putResponseTo($.byRole("beats-container"))
+            .addSuccess(yo.favoriteBeats.updateAllElements)
+			.send();
+
+    });
+}
+

@@ -1,0 +1,81 @@
+(() => {
+    let AdItemTypes;
+    (function (AdItemTypes) {
+        AdItemTypes[AdItemTypes["Popup"] = 0] = "Popup";
+        AdItemTypes[AdItemTypes["BottomBanner"] = 1] = "BottomBanner";
+    })(AdItemTypes || (AdItemTypes = {}));
+    class PublicAdItem {
+    }
+    class AdsPopup extends BasePopup {
+        constructor(clickBodyCallback) {
+            super(clickBodyCallback);
+            this._closeButtonShowDelay = 5;
+        }
+    }
+    class ScreenSizeDetector {
+    }
+    class AdsManager {
+        constructor() {
+            this._clickedItemsIds = [];
+            this.popup = new AdsPopup(() => {
+                if (this._clickedItemsIds.indexOf(this._currentItem.id) < 0) {
+                    this._clickedItemsIds.push(this._currentItem.id);
+                    this._reportView(this._currentItem.id, false, true);
+                }
+            });
+        }
+        checkAds() {
+            this._getAds();
+        }
+        _getAds() {
+            App.req.newRequest("getItems")
+                .setUrl("/api/serviceAds")
+                .offDefaultSuccess()
+                .setGET()
+                .addSuccess(this._onGetAds.bind(this))
+                .send();
+        }
+        getExampleAds() {
+            App.req.newRequest("getItems")
+                .setUrl("/api/serviceAds")
+                .setData({
+                example: true
+            })
+                .offDefaultSuccess()
+                .setGET()
+                .addSuccess(this._onGetAds.bind(this))
+                .send();
+        }
+        _onGetAds(items) {
+            for (let item of items) {
+                App.timeOutManager.doIfNeedIt(1 / item.dayTargetShowsPerUser, "ads_" + item.id, this._showAd.bind(this, item), App.timeOutManager.needUpdateDataParamDefault.updateIfNeedRunAndJobReturnedTrue);
+            }
+        }
+        _showAd(item) {
+            if (item.adType === AdItemTypes.Popup) {
+                if (this.popup.showed)
+                    return false;
+                this.popup.putContent(item.code, item.title);
+                this.popup.show();
+                this._reportView(item.id, true);
+                this._currentItem = item;
+                return true;
+            }
+        }
+        _reportView(id, view, click = false) {
+            App.req.newRequest("report-view")
+                .setUrl("/api/serviceAds")
+                .setData({
+                id: id,
+                view: view,
+                click: click
+            })
+                .offDefaultSuccess()
+                .offUploadAnimation()
+                .send();
+        }
+    }
+    var adsManager = new AdsManager();
+    setTimeout(() => adsManager.checkAds(), 3000);
+})();
+//# sourceMappingURL=AdsManager.js.map;

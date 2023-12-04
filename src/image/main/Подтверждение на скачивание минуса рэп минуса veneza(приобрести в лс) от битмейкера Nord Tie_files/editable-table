@@ -1,0 +1,313 @@
+class ObjectProperty {
+    constructor(name, value, title, p) {
+        this.isOwnerOrAdmin = false;
+        this.enumNullValue = null;
+        this.enumNullTitle = "------";
+        this.enums = {};
+        this.editable = true;
+        this.showForAdminOnly = false;
+        this.name = name;
+        this._value = value;
+        this.isEnum = p && p.isEnum || false;
+        this.isDate = p && p.isDate || false;
+        this.empty = p && p.empty || false;
+        this.bigText = p && p.bigText || false;
+        if (p && p.editable != null)
+            this.editable = p.editable;
+        this.title = title;
+        this.showForAdminOnly = p && p.showForAdminOnly || false;
+    }
+    get value() {
+        if (this.isDate) {
+            var date = new Date(this._value.toString());
+            var monthes = date.getMonth() + 1;
+            var monthesString = monthes.toString();
+            if (monthes < 10)
+                monthesString = "0" + monthesString;
+            let days = date.getDate();
+            let daysAsString = days.toString();
+            if (days < 10)
+                daysAsString = "0" + daysAsString;
+            return `${date.getFullYear()}-${monthesString}-${daysAsString}`;
+        }
+        return this._value;
+    }
+    getElement() {
+        //if not owner and not admin then you only can readonly mode
+        if (!this.isOwnerOrAdmin) {
+            this.editable = false;
+        }
+        if (this.empty) {
+            return "";
+        }
+        if (this.editable && this.isEnum) {
+            var firstOption = this.enumNullValue == null ?
+                `<option value=''>
+                                       ----
+                            </option>` :
+                `<option value='${this.enumNullValue}'>
+                                        ${this.enumNullTitle}
+                            </option>`;
+            var options = Object.keys(this.enums).reduce((prev, current) => {
+                return prev + `<option value='${current}' ${(this.value != null && current == this.value.toString()) ? 'selected' : ''}>
+                                        ${this.enums[current]}
+                            </option>`;
+            }, firstOption);
+            return `<select name='${this.name}'>${options}</select>`;
+        }
+        if (typeof this.value == "boolean") {
+            return `<input type="checkbox" name='${this.name}' ${this.value ? "checked" : ""} />`;
+        }
+        if (this.editable && this.bigText) {
+            return `<textarea name='${this.name}'>${this.value}</textarea>`;
+        }
+        if (this.editable && this.isDate) {
+            return `<input value='${this.value}' name='${this.name}'/>`;
+        }
+        else if (this.editable) {
+            return `<input value='${this.value}' name='${this.name}'/>`;
+        }
+        if (this.isEnum) {
+            const keys = Object.keys(this.enums).filter((key) => {
+                return key == this.value;
+            });
+            if (keys.length === 0) {
+                return this.enumNullTitle;
+            }
+            return this.enums[keys[0]];
+        }
+        return this.value;
+    }
+}
+//# sourceMappingURL=ObjectProperties.js.map;
+class EditTableItemModelBase {
+    constructor() {
+        //make private later
+        this.properties = [];
+        this.userOwnerIdPropName = "userId";
+    }
+    addProperty(property) {
+        if (!this.originalItem) {
+            console.warn("Firstly set original item");
+        }
+        property.isOwnerOrAdmin = this.isOwnerOrAdmin();
+        this.properties.push(property);
+    }
+    isOwnerOrAdmin() {
+        if (App.Vars.isAdmin)
+            return true;
+        if (!!this.originalItem && this.originalItem[this.userOwnerIdPropName] === App.Vars.userId) {
+            return true;
+        }
+        return false;
+    }
+    build(item) {
+        this.originalItem = item;
+        this._fullfillProperties();
+    }
+}
+//# sourceMappingURL=EditTableItemModelBase.js.map;
+class EditTableBase {
+    constructor() {
+        this.items = [];
+        this.id = null;
+        this.entityIdPropName = "id";
+        this.hideMessage = (el) => {
+            $.byRole("table-alert").remove();
+        };
+        this._bindEventsListeners();
+    }
+    _bindEventsListeners() {
+        $.byRole("create-discount").on("click", this._onCreateItemClick.bind(this));
+    }
+    _onCreateItemClick(e) {
+        App.req.newRequest("get-discounts")
+            .setUrl(this.url)
+            .setMethod("POST")
+            .offDefaultSuccess()
+            .addSuccess(this._itemCreated.bind(this))
+            .send();
+    }
+    _itemCreated(data) {
+        this.getItems();
+    }
+    _onGetItems(rawItems) {
+        this.items = rawItems.map((rawItem) => {
+            var model = new this.modelConstructor();
+            let discountEntity = Object.assign(Object.assign({}, (new this.entityConstructor())), rawItem);
+            model.build(discountEntity);
+            return model;
+        });
+        this._render();
+    }
+    _render() {
+        if (!!this.items.length) {
+            var columns = this.items[0].properties.reduce((prev, currentProp) => {
+                if (currentProp.showForAdminOnly && !App.Vars.isAdmin) {
+                    return prev;
+                }
+                prev = prev + `<th>${currentProp.title}</th>`;
+                return prev;
+            }, "");
+            $("#items-table tbody").html(`<tr>${columns}</tr>`);
+        }
+        var rows = this.items.reduce((prev, current, index, array) => {
+            let c = current;
+            var columns = c.properties.reduce((prev, currentProp) => {
+                if (currentProp.showForAdminOnly && !App.Vars.isAdmin) {
+                    return prev;
+                }
+                prev = prev + `<td>${currentProp.getElement()}</td>`;
+                return prev;
+            }, "");
+            prev = prev +
+                `<tr data-id='${c.originalItem[this.entityIdPropName]}'>
+                      ${columns}
+                    </tr>`;
+            return prev;
+        }, "");
+        $("#items-table tbody").append(rows);
+        $("#items-table tbody").find("input, select, textarea").on("change", (e) => {
+            let $el = $(e.currentTarget);
+            let el = e.currentTarget;
+            var id = $el.closest("tr").data("id");
+            var name = el.name;
+            let value = el.value;
+            if ($el.attr("type") === "checkbox") {
+                value = $el.prop("checked");
+            }
+            var item = this.items.filter((item) => item.originalItem.id === id)[0];
+            this.updateField(id, name, value);
+        });
+    }
+    getItems() {
+        const request = App.req.newRequest("get-discounts")
+            .setUrl(this.url)
+            .offDefaultSuccess()
+            .setMethod("GET")
+            .addSuccess(this._onGetItems.bind(this));
+        if (!!this.id) {
+            request.setData({
+                id: this.id
+            });
+        }
+        request.send();
+    }
+    updateField(id, fieldName, value) {
+        var data = {};
+        data[this.entityIdPropName] = id;
+        data[fieldName] = value;
+        App.req.newRequest("update-discount")
+            .setUrl(this.url)
+            .offDefaultSuccess()
+            .setMethod("PUT")
+            .setData(data)
+            .addSuccess((result) => {
+            if (result.resultCode === 0) {
+                this.getItems();
+                this.showMessage(true, "Сохранено");
+            }
+            else {
+                this.showMessage(false, result.messages[0]);
+            }
+        })
+            .send();
+    }
+    showMessage(isSuccess, message) {
+        var messageBlock = $(`<div class='alert' data-role='table-alert'
+style='z-index: 10000; position: fixed; top: 20px; left: 45%;'>${message}</div>`);
+        if (isSuccess)
+            messageBlock.addClass("alert-success");
+        else
+            messageBlock.addClass("alert-danger");
+        $("body").append(messageBlock);
+        setTimeout(this.hideMessage, 4000);
+    }
+}
+//# sourceMappingURL=EditTableBase.js.map;
+var ForWhatBeatsThisDiscountTypes;
+(function (ForWhatBeatsThisDiscountTypes) {
+    ForWhatBeatsThisDiscountTypes[ForWhatBeatsThisDiscountTypes["AllLicenses"] = 1] = "AllLicenses";
+    ForWhatBeatsThisDiscountTypes[ForWhatBeatsThisDiscountTypes["ConcretteLicense"] = 2] = "ConcretteLicense";
+})(ForWhatBeatsThisDiscountTypes || (ForWhatBeatsThisDiscountTypes = {}));
+var BeatDiscountStatuses;
+(function (BeatDiscountStatuses) {
+    BeatDiscountStatuses[BeatDiscountStatuses["Closed"] = 0] = "Closed";
+    BeatDiscountStatuses[BeatDiscountStatuses["Active"] = 1] = "Active";
+})(BeatDiscountStatuses || (BeatDiscountStatuses = {}));
+var DiscountTypes;
+(function (DiscountTypes) {
+    DiscountTypes[DiscountTypes["None"] = 0] = "None";
+    DiscountTypes[DiscountTypes["BeatForRepost"] = 1] = "BeatForRepost";
+    DiscountTypes[DiscountTypes["DayDiscount"] = 2] = "DayDiscount";
+})(DiscountTypes || (DiscountTypes = {}));
+App.models.DiscountForWhatBeatsEnum = ForWhatBeatsThisDiscountTypes;
+App.models.DiscountBeatDiscountStatuses = BeatDiscountStatuses;
+class KeyValue {
+}
+class Discount {
+    constructor() {
+    }
+}
+class DiscountModel extends EditTableItemModelBase {
+    constructor() {
+        super();
+        this.userOwnerIdPropName = "createdById";
+    }
+    _fullfillProperties() {
+        var item = this.originalItem;
+        let addedDateProp = new ObjectProperty("", item.addedDate, "Создан", { isDate: true, editable: false });
+        this.addProperty(addedDateProp);
+        let statusProp = new ObjectProperty("status", item.status, "Статус", { isEnum: true });
+        statusProp.enums[BeatDiscountStatuses.Active] = "Активен";
+        statusProp.enums[BeatDiscountStatuses.Closed] = "Закрыт";
+        this.addProperty(statusProp);
+        let discountTypes = new ObjectProperty("discountType", item.discountType, "Тип", {
+            isEnum: true,
+            editable: App.Vars.isAdmin,
+        });
+        discountTypes.enumNullValue = DiscountTypes.None;
+        discountTypes.enumNullTitle = 'Не выбран';
+        discountTypes.enums[DiscountTypes.BeatForRepost] = "Бит за репост";
+        discountTypes.enums[DiscountTypes.DayDiscount] = "Скидка дня";
+        this.addProperty(discountTypes);
+        let forWhatBeatsProp = new ObjectProperty("forWhatBeats", item.forWhatBeats, "Для каких битов", { isEnum: true });
+        forWhatBeatsProp.enums[ForWhatBeatsThisDiscountTypes.AllLicenses] = "Для всех лицензий";
+        forWhatBeatsProp.enums[ForWhatBeatsThisDiscountTypes.ConcretteLicense] = "Для лицензии";
+        this.addProperty(forWhatBeatsProp);
+        if (item.forWhatBeats === ForWhatBeatsThisDiscountTypes.ConcretteLicense) {
+            let forLicenseProp = new ObjectProperty("licenseId", item.licenseId, "Лицензия", {
+                isEnum: true
+            });
+            item.licenses.forEach((lic) => forLicenseProp.enums[lic.key] = lic.value);
+            this.addProperty(forLicenseProp);
+        }
+        else {
+            this.addProperty(new ObjectProperty("empty", null, "Лицензия", { empty: true }));
+        }
+        let startDateProp = new ObjectProperty("startDate", item.startDate, "Скидка действительна с (ГГГГ-ММ-ДД)", { isDate: true });
+        this.addProperty(startDateProp);
+        let finishDateProp = new ObjectProperty("finishDate", item.finishDate, "... по", { isDate: true });
+        this.addProperty(finishDateProp);
+        let discountSizeProp = new ObjectProperty("discountSize", item.discountSize, "Скидка в %", {});
+        this.addProperty(discountSizeProp);
+        let beatmakerId = new ObjectProperty("beatmakerId", item.beatmakerId, "ID битмейкера", {
+            showForAdminOnly: true
+        });
+        this.addProperty(beatmakerId);
+        let beatmakerName = new ObjectProperty("", item.beatmaker.name, "Имя битмейкера", {
+            editable: false,
+            showForAdminOnly: true
+        });
+        this.addProperty(beatmakerName);
+        let description = new ObjectProperty("description", item.description, "Заметка", {
+            editable: item.createdById === item.beatmakerId || App.Vars.isAdmin,
+            bigText: true
+        });
+        this.addProperty(description);
+        this.addProperty(new ObjectProperty("beatsCount", item.beatsCount, "Кол-во битов"));
+        this.addProperty(new ObjectProperty("", item.closedBeatsCount, "Битов куплено", { editable: false }));
+        this.addProperty(new ObjectProperty("", item.code, "КОД КУПОНА", { editable: false }));
+    }
+}
+//# sourceMappingURL=Discount.js.map;

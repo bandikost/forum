@@ -1,0 +1,54 @@
+.container {
+    position: relative;
+    top: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 830px;
+    margin: 0 auto 0;
+    font-size: 30px;
+    color: #24432e;
+    line-height: 40px;
+}
+
+
+.suptitle {
+    animation-name: group;
+    animation-duration: 1s;
+}
+
+.title {
+    margin-top: 20px;
+}
+
+.title p {
+    margin-top: 10px;
+    padding: 0;
+}
+
+
+.first, .second, .third {
+    opacity: 0; 
+}
+
+.first {
+    animation: fadeIn 1s 1s forwards; 
+}
+
+.second {
+    animation: fadeIn 1s 2s forwards;
+}
+
+.third {
+    animation: fadeIn 1s 3s forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}

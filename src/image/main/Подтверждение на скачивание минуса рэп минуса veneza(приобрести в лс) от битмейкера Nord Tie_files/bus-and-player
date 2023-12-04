@@ -1,0 +1,234 @@
+class Bus {
+    play(autoPlay, track, trackType) {
+        // @ts-ignore
+        window.ngInterop.publishToClass('PlayEvent', { autoPlay, track: track, type: trackType });
+    }
+    setPlaylist(ids) {
+        // @ts-ignore
+        window.ngInterop.publishToClass('SetPlaylist', { tracksIds: ids });
+    }
+    setup(settings) {
+        // @ts-ignore
+        window.ngInterop.publishToClass('SetupEvent', { trackResolver: settings.trackResolver });
+    }
+    helpers() {
+        // @ts-ignore
+        return window.ngInterop.helpers();
+    }
+    onTrackPlaying(callback) {
+        // @ts-ignore
+        window.ngInterop.subscribeToClass('PlayStartedEvent', callback);
+    }
+    onCartUpdated(callback) {
+        // @ts-ignore
+        window.ngInterop.subscribeToClass('CartUpdatedEvent', callback);
+    }
+    onRouteNavigateStarted(callback) {
+        // @ts-ignore
+        window.ngInterop.subscribeToClass('RouteNavigationStartedEvent', callback);
+    }
+}
+//# sourceMappingURL=Bus.js.map;
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+class BeatmakerTVPlayer {
+    constructor(bus) {
+        this.bus = bus;
+        this.fullTrackCache = null;
+        this.trackInfo = {};
+    }
+    init() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.bindPlayButtons();
+            this.bus.onTrackPlaying((event) => {
+                // console.log("subscriber: ",  event);
+                const { id, type } = event.data.track;
+                $(".player_play, .js-player-playTrack")
+                    .removeClass("playing")
+                    .each((index, t) => {
+                    if ($(t).attr("id") == id) {
+                        $(t).addClass("playing");
+                    }
+                });
+            });
+            const data = yield App.req.newRequest("get-initial-beat")
+                .setUrl(App.Vars.urls.getInitialPlayerBeat)
+                .offDefaultSuccess()
+                .send();
+            if (data.Extra.ads) {
+                let timeManager = App.timeOutManager;
+                // если реклама - загрузить трек но без автоплея
+                let promise = this.play(data.Extra.beatId, "beat", false);
+                // повесить одноразовый обработчик click на документ, чтобы сработал "автоплей"
+                // (если прошло 2 часа с момента предыдущего автоплея)         
+                timeManager.doIfNeedIt(1 / 24 * 2, "play-ads-beat", () => {
+                    window.setTimeout(() => {
+                        promise.then(() => {
+                            $(document).on("click.autoplay", () => {
+                                this.play(data.Extra.beatId, "beat", true);
+                                // после срабатывания - зачистить автоплей
+                                $(document).off("click.autoplay");
+                                //$(".js-ads-page-link").show();
+                            });
+                        });
+                    }, 1000);
+                }, timeManager.needUpdateDataParamDefault.updateIfNeedRunOperation);
+            }
+            else {
+                // если не реклама - просто загрузить трек в плеер без автоплея
+                this.play(data.Extra.beatId, "beat", false);
+            }
+            ;
+        });
+    }
+    bindPlayButtons() {
+        // @ts-ignore
+        $(document).on("click", ".player_play, .js-player-playTrack", (event) => {
+            const playlistIdsElements = $(event.currentTarget)
+                .closest(".js-player-tracks-container")
+                .find(".player_play, .js-player-playTrack");
+            const ids = playlistIdsElements
+                .map((index, e) => {
+                return +e.id;
+            })
+                .toArray();
+            this.bus.setPlaylist(ids);
+            // @ts-ignore
+            let link = event.currentTarget;
+            var beatId = link.id;
+            event.stopPropagation();
+            let trackType = 'beat';
+            if (link.classList.contains('js-player-freebeat')) {
+                trackType = 'free-beat';
+            }
+            else if (link.classList.contains('js-player-playTrack')) {
+                trackType = 'song';
+            }
+            this.play(beatId, trackType);
+            return false;
+        });
+    }
+    play(trId, trackType, autoPlay = true) {
+        // we already uploaded this beat and cached info about beat
+        if (this.trackInfo.id === trId && this.trackInfo.type === trackType) {
+            this.OnGetBeatForPlay(this.fullTrackCache, trId, true, trackType);
+            return;
+        }
+        this.trackInfo.id = trId;
+        this.trackInfo.type = trackType;
+        return App.req.newRequest("Track-PlayTrack")
+            .setUrl(App.Vars.urls.getCode)
+            .offDefaultSuccess()
+            .send()
+            .then((res) => this.OnGetCode(res, trId, trackType))
+            .then(res => this.OnValidateCode(res, trId, trackType))
+            .then(res => this.OnGetBeatForPlay(res, trId, true, trackType, autoPlay));
+    }
+    OnGetCode(result, trId, trackType) {
+        var data = {};
+        if (true) { //NotIncrementPlayCount === true)
+            data = {
+                np: true,
+                code: result,
+                beatId: trId,
+                isBeat: trackType === "beat" || trackType === 'free-beat',
+                isFreeBeat: trackType === 'free-beat'
+            };
+        } /* else {
+            data = {
+                code: result,
+                beatId: PlayerApp.PlayingBeatId,
+                isBeat: PlayerApp.isBeat,
+                isFreeBeat: PlayerApp.isFreeBeat
+            };
+        }*/
+        // NotIncrementPlayCount = false;
+        return App.req.newRequest("Track-Play-ValidateCode")
+            .setUrl(App.Vars.urls.validateCode)
+            .setData(data)
+            .offDefaultSuccess()
+            .send();
+    }
+    OnValidateCode(result, trId, trackType) {
+        if (result === 'True') {
+            var request = App.req.newRequest("Track-GetBeatForPlay")
+                .setData({ beatId: trId })
+                .offDefaultSuccess();
+            switch (trackType) {
+                case 'beat':
+                    request.setUrl(App.Vars.urls.getBeatForPlay);
+                    break;
+                case 'free-beat':
+                    request.setUrl(App.Vars.urls.getFreeBeatForPlay);
+                    break;
+                case 'song':
+                    request.setUrl(App.Vars.urls.getTrackForPlay);
+                    break;
+            }
+            return request.send();
+        }
+    }
+    OnGetBeatForPlay(result, trId, startPlaying = true, trackType, autoPlay = true) {
+        this.fullTrackCache = result;
+        const helpers = this.bus.helpers();
+        switch (trackType) {
+            case 'beat':
+            case 'free-beat':
+                this.bus.play(autoPlay, helpers.convertITrackToPlayerTrack(result), trackType);
+                break;
+            case 'song':
+                this.bus.play(autoPlay, helpers.convertISongToPlayerTrack(result), trackType);
+                break;
+        }
+        return false;
+    }
+    ;
+}
+//# sourceMappingURL=PlayerUI.js.map;
+let bus = new Bus();
+const player = new BeatmakerTVPlayer(bus);
+player.init();
+bus.setup({
+    trackResolver: {
+        getTrack: (id, trackType) => App.req.newRequest("Track-PlayTrack")
+            .setUrl(App.Vars.urls.getCode)
+            .offDefaultSuccess()
+            .send()
+            .then(res => player.OnGetCode(res, id, trackType))
+            .then(res => player.OnValidateCode(res, id, trackType))
+            .then(res => {
+            return bus.helpers().convertITrackToPlayerTrack(res);
+        })
+    }
+});
+bus.onCartUpdated(() => {
+});
+bus.onRouteNavigateStarted(function (event) {
+    if (event.data.toUrl.toLowerCase().indexOf("/messages") > -1) {
+        console.log("ignore messages");
+        return;
+    }
+    if (event.data.toUrl.toLowerCase() === '/Default/Payment/ShoppingCart'.toLowerCase()) {
+        App.htmlHelper.cleanContentForPage();
+        $("#container").addClass("dark-theme");
+        // @ts-ignore
+        window.cleanupPage = () => {
+            $("#container").removeClass("dark-theme");
+        };
+    }
+    else {
+        console.log('want uploadPage');
+        App.htmlHelper.uploadPage(event.data.toUrl);
+    }
+    // example: /beats/2323
+    //if (/^\/beat\/\d+$/.test(event.data.toUrl.toLowerCase())) {
+    //}
+});
+//# sourceMappingURL=BusInitialization.js.map;

@@ -1,0 +1,116 @@
+.form {
+    border-radius: 14px;
+    padding: 50px 0px;
+    width: 50vw;
+    display: flex;
+  
+    background-color: white;
+    height: 180vh;
+    flex-direction: column;
+   
+
+}
+
+.form_edit {
+    border-radius: 14px;
+    padding: 50px 0px;
+    width: 50vw;
+    display: flex;
+    margin: 100px auto 0 auto;
+    background-color: white;
+    height: 120vh;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.container {
+
+    margin: 0;
+}
+
+.ul {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 90%;
+    height: 50px;
+    padding: 0 10px;
+
+}
+
+.li {
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    
+}
+
+
+
+.li a {
+    color: black;
+    font-weight: 700;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    height: 50px;
+}
+
+
+.containerManager {
+    display: flex;
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+}
+
+
+.auth input{
+  margin: 5px 0px;
+  width: 220px;
+  border-radius: 5px;
+  border: 1px solid black;
+  padding: 4px 10px;
+  font-size: 18px; 
+  font-weight: 500;
+}
+
+.passwordToggle {
+    border: solid white;
+    border-width: 0 4px 4px 0;
+    display: inline-block;
+    padding: 4px;
+    width: 28px;
+    position: absolute;
+    margin-top: 50px;
+    margin-left: 225px;
+    height: 24px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.button {
+    margin-top: 10px;
+    border-radius: 5px;
+    width: 100px;
+    padding: 2px 5px;
+    background-color: #c4d3f6;
+  
+}
+
+.edit {
+    font-size: 25px;
+    margin-top: 0px;
+    position: relative;
+    top: 50px;
+    display: flex;
+    justify-content: center;
+}
+

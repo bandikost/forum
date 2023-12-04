@@ -1,0 +1,85 @@
+.container {
+    position: relative;
+    top: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 830px;
+    margin: 0 auto 0;
+    font-size: 30px;
+    color: #24432e;
+    line-height: 40px;
+}
+
+
+.suptitle {
+    animation-name: group;
+    animation-duration: 1s;
+}
+
+.title {
+    margin-top: 20px;
+}
+
+.title p {
+    margin-top: 10px;
+    padding: 0;
+}
+
+
+.first {
+    animation-name: first;
+    animation-delay: 1s;
+    animation-duration: 1s;
+}
+
+.second {
+    animation-name: second;
+    animation-delay: 2s;
+    animation-duration: 1s;
+}
+
+.third {
+    animation-name: third;
+    animation-delay: 3s;
+    animation-duration: 1s;
+}
+
+
+@keyframes group {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+@keyframes first {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+@keyframes second {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+@keyframes third {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

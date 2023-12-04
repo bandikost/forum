@@ -1,0 +1,62 @@
+﻿window.menuIsNotLoaded = true;
+window.notificationsIsNotLoaded = true;
+
+$(function () {
+    $("#showNotifications").click(function () {
+        if (window.notificationsIsNotLoaded) {
+            App.req.newRequest("notifications-show")
+                .setUrl(App.Vars.urls.notifications)
+                .offDefaultSuccess()
+                .putResponseTo($("#notificationsBlock"))
+                .send();
+            window.notificationsIsNotLoaded = false;
+        }
+        $("#notificationsBlock").slideToggle(500);
+    });
+
+	window.messages = {
+		getNewMessagesCount: getNewMessagesCount
+	};
+
+	getNewMessagesCount();
+
+    if (typeof window.site_page_name != "undefined" && window.site_page_name === "private-messages-page") {
+        setInterval(getNewMessagesCount, 20 * 1000);
+    } else {
+        setInterval(getNewMessagesCount, 2 * 60 * 1000);
+    }
+
+    var lastMessagesCountObject = null;
+
+    function getNewMessagesCount() {
+        App.req.newRequest("get-n-m-c")
+            .setUrl(App.Vars.urls.newMessagesCount)
+            .offDefaultSuccess()
+            .offUploadAnimation()
+            .addSuccess(function (result) {
+                var count = result.Extra.value.Count;
+                
+                if (lastMessagesCountObject != null &&
+                    (lastMessagesCountObject.Count < count || lastMessagesCountObject.LastMessageDate != result.Extra.value.LastMessageDate))
+                {
+                    if (typeof private_messages_updateDialogsAndMessages != "undefined") {
+                        private_messages_updateDialogsAndMessages();
+                    }
+                }
+
+                lastMessagesCountObject = result.Extra.value;
+
+                $(".header-new-messages-count").fadeOut(1000);
+                if (count > 0) {
+                    $(".header-new-messages-count").html(count);
+                    $(".header-new-messages-count").fadeIn(1000);
+                }
+            })
+            .send();
+    }
+});
+
+function AddDataForShopCarPopup() {
+    var data = GetBeatsInCar();
+    return { beats: data };
+}
